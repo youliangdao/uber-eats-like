@@ -61,6 +61,11 @@ const Foods = ({match}) => {
   }
   const [state, setState] = useState(initialState)
 
+  const submitOrder = () => {
+    // あとで仮注文のAPIを実装
+    console.log('登録ボタンが押された')
+    console.log(state.selectedFood.price * state.selectedFoodCount , state.selectedFoodCount)
+  }
   useEffect(() => {
     dispatch({
       type: foodsActionTypes.FETCHING,
@@ -119,10 +124,22 @@ const Foods = ({match}) => {
         state.isOpenOrderDialog &&
           <FoodOrderDialog
             food={state.selectedFood}
+            countNumber={state.selectedFoodCount}
             isOpen={state.isOpenOrderDialog}
+            onClickCountUp={() => setState({
+              ...state,
+              selectedFoodCount: state.selectedFoodCount + 1,
+            })}
+            onClickCountDown={() => setState({
+              ...state,
+              selectedFoodCount: state.selectedFoodCount - 1,
+            })}
+            onClickOrder={submitOrder}
             onClose={() => setState({
               ...state,
               isOpenOrderDialog: false,
+              selectedFood: null,
+              selectedFoodCount: 1,
             })}
           />
       }
