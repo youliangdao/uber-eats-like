@@ -1,9 +1,9 @@
 import axios from "axios";
-import { restaurantsIndex } from "../urls/index";
+import { foodsIndex } from "../urls/index";
 
-export const fetchRestaurants = async() => {
+export const fetchFoods = async(restaurantId) => {
   try {
-    const res = await axios.get(restaurantsIndex);
+    const res = await axios.get(foodsIndex(restaurantId));
     if (res.statusText === "OK") {
       return res.data;
     } else {
