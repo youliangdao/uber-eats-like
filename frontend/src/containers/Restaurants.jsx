@@ -69,7 +69,7 @@ const SubText = styled.p`
 `;
 
 const Restaurants = () => {
-  const [state, dispatch] = useReducer(restaurantReducer, initialState);
+  const [restaurantsState, dispatch] = useReducer(restaurantReducer, initialState);
   useEffect(() => {
     dispatch({
       type: restaurantActionTypes.FETCHING,
@@ -94,14 +94,14 @@ const Restaurants = () => {
       </MainCoverImageWrapper>
       <RestaurantsContentsList>
       {
-        state.fetchState === REQUEST_STATE.LOADING ?
+        restaurantsState.fetchState === REQUEST_STATE.LOADING ?
         <>
           <Skeleton variant="rect" width={450} height={300}/>
           <Skeleton variant="rect" width={450} height={300}/>
           <Skeleton variant="rect" width={450} height={300}/>
         </>
         :
-        state.restaurantsList.map((item) => {
+        restaurantsState.restaurantsList.map((item) => {
           return (
             <Link to={`/restaurants/${item.id}/foods`} key={item.id} style={{ textDecoration: 'none'}}>
               <RestaurantsContentWrapper>
