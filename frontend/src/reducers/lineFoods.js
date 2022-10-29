@@ -29,12 +29,12 @@ export const LineFoodsReducer = (state, action) => {
     case lineFoodsActionTypes.POSTING:
       return {
         ...state,
-        fetchState: REQUEST_STATE.LOADING,
+        postState: REQUEST_STATE.LOADING,
       }
     case lineFoodsActionTypes.POST_SUCCESS:
       return {
         ...state,
-        fetchState: REQUEST_STATE.OK,
+        postState: REQUEST_STATE.OK,
       }
     default:
       throw new Error();

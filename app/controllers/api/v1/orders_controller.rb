@@ -13,7 +13,6 @@ module Api
         end
       end
 
-
       private
 
       def total_price(posted_line_foods)
