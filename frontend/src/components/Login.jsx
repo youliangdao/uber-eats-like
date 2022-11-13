@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import axios from "axios";
+import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
 const schema = yup.object({
   email: yup
@@ -14,12 +16,13 @@ const schema = yup.object({
   password: yup.string().required("入力必須の項目です"),
 });
 
-const Form = () => {
+const Login = (props) => {
   const {
     register,
     handleSubmit,
     formState: { errors, isDirty, dirtyFields },
     trigger,
+    reset,
   } = useForm({
     // mode: "onBlur",
     // criteriaMode: "all",
@@ -30,15 +33,31 @@ const Form = () => {
     // },
     resolver: yupResolver(schema),
   });
-  console.log(errors);
-  // const handleChangeEmail = (e) => {
-  //   setEmail(e.target.value);
-  // };
-  // const handleChangePassword = (e) => {
-  //   setPassword(e.target.value);
-  // };
-  const onSubmit = (data) => {
-    console.log(data, errors);
+  const history = useHistory();
+  const onSubmit = (data, e) => {
+    console.log(data, e);
+    axios
+      .post(
+        "http://127.0.0.1:3000/login",
+        {
+          user: {
+            email: data.email,
+            password: data.password,
+          },
+        },
+        { withCredentials: true }
+      )
+      .then((response) => {
+        console.log("login response: ", response);
+        if (response.data.logged_in) {
+          history.push("/restaurants");
+          props.handleLogin(response.data);
+        }
+      })
+      .catch((error) => {
+        console.log("registration error", error);
+      });
+    reset();
   };
   return (
     <div>
@@ -73,4 +92,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default Login;

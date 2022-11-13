@@ -1,25 +1,36 @@
-import React from 'react'
-import { useEffect, useReducer } from 'react'
+import React from "react";
+import { useEffect, useReducer } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
-{/** components */}
-import Skeleton from '@mui/material/Skeleton';
+{
+  /** components */
+}
+import Skeleton from "@mui/material/Skeleton";
 
-{/** API */}
-import { fetchRestaurants } from '../apis/restaurants'
+{
+  /** API */
+}
+import { fetchRestaurants } from "../apis/restaurants";
 
-{/** reducers */}
+{
+  /** reducers */
+}
 import {
   initialState,
   restaurantActionTypes,
   restaurantReducer,
 } from "../reducers/restaurants";
 
-{/** constants */}
+{
+  /** constants */
+}
 import { REQUEST_STATE } from "../constants";
 
-{/** images */}
+{
+  /** images */
+}
 import MainLogo from "../images/logo.png";
 import MainCoverImage from "../images/main-cover-image.png";
 import RestaurantImage from "../images/restaurant-image.jpg";
@@ -68,54 +79,70 @@ const SubText = styled.p`
   font-size: 12px;
 `;
 
-const Restaurants = () => {
-  const [restaurantsState, dispatch] = useReducer(restaurantReducer, initialState);
+const Restaurants = (props) => {
+  const [restaurantsState, dispatch] = useReducer(
+    restaurantReducer,
+    initialState
+  );
+  const handleLogoutClick = () => {
+    axios
+      .delete("http://127.0.0.1:3000/logout", { withCredentials: true })
+      .then((response) => {
+        props.handleLogout();
+      })
+      .catch((error) => console.log("ログアウトエラー", error));
+  };
   useEffect(() => {
     dispatch({
       type: restaurantActionTypes.FETCHING,
     });
-    fetchRestaurants().then(data => {
+    fetchRestaurants().then((data) => {
       dispatch({
         type: restaurantActionTypes.FETCH_SUCCESS,
         payload: {
           restaurants: data.restaurants,
-        }
-      })
-    })
-  }, [])
+        },
+      });
+    });
+  }, []);
 
   return (
     <>
+      <h2>ログイン状態:{props.loggedInStatus}</h2>
+      <button onClick={handleLogoutClick}>ログアウト</button>
       <HeaderWrapper>
-        <MainLogoImage src={MainLogo} alt="main logo"/>
+        <MainLogoImage src={MainLogo} alt="main logo" />
       </HeaderWrapper>
       <MainCoverImageWrapper>
         <MainCover src={MainCoverImage} alt="main cover" />
       </MainCoverImageWrapper>
       <RestaurantsContentsList>
-      {
-        restaurantsState.fetchState === REQUEST_STATE.LOADING ?
-        <>
-          <Skeleton variant="rect" width={450} height={300}/>
-          <Skeleton variant="rect" width={450} height={300}/>
-          <Skeleton variant="rect" width={450} height={300}/>
-        </>
-        :
-        restaurantsState.restaurantsList.map((item) => {
-          return (
-            <Link to={`/restaurants/${item.id}/foods`} key={item.id} style={{ textDecoration: 'none'}}>
-              <RestaurantsContentWrapper>
-                <RestaurantsImageNode src={RestaurantImage} />
-                <MainText>{item.name}</MainText>
-                <SubText>{`配送料:${item.fee}円 ${item.time_required}分`}</SubText>
-              </RestaurantsContentWrapper>
-            </Link>
-          )
-        })
-      }
+        {restaurantsState.fetchState === REQUEST_STATE.LOADING ? (
+          <>
+            <Skeleton variant="rect" width={450} height={300} />
+            <Skeleton variant="rect" width={450} height={300} />
+            <Skeleton variant="rect" width={450} height={300} />
+          </>
+        ) : (
+          restaurantsState.restaurantsList.map((item) => {
+            return (
+              <Link
+                to={`/restaurants/${item.id}/foods`}
+                key={item.id}
+                style={{ textDecoration: "none" }}
+              >
+                <RestaurantsContentWrapper>
+                  <RestaurantsImageNode src={RestaurantImage} />
+                  <MainText>{item.name}</MainText>
+                  <SubText>{`配送料:${item.fee}円 ${item.time_required}分`}</SubText>
+                </RestaurantsContentWrapper>
+              </Link>
+            );
+          })
+        )}
       </RestaurantsContentsList>
     </>
-  )
-}
+  );
+};
 
-export default Restaurants
+export default Restaurants;
