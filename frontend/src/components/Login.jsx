@@ -2,90 +2,88 @@ import React from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
+import { auth, app } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
-const schema = yup.object({
-  email: yup
-    .string()
-    .email("メールアドレスの形式ではありません")
-    .required("入力必須の項目です"),
-  password: yup.string().required("入力必須の項目です"),
-});
-
-const Login = (props) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isDirty, dirtyFields },
-    trigger,
-    reset,
-  } = useForm({
-    // mode: "onBlur",
-    // criteriaMode: "all",
-    // reValidateMode: "onSubmit",
-    // defaultValues: {
-    //   email: "",
-    //   password: "",
-    // },
-    resolver: yupResolver(schema),
-  });
+const Login = ({ handleLogin }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const history = useHistory();
-  const onSubmit = (data, e) => {
-    console.log(data, e);
-    axios
-      .post(
-        "http://127.0.0.1:3000/login",
-        {
-          user: {
-            email: data.email,
-            password: data.password,
-          },
-        },
-        { withCredentials: true }
-      )
-      .then((response) => {
-        console.log("login response: ", response);
-        if (response.data.logged_in) {
-          history.push("/restaurants");
-          props.handleLogin(response.data);
-        }
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        history.push("/restaurants");
+        handleLogin(userCredential.user);
       })
       .catch((error) => {
-        console.log("registration error", error);
+        const errorCode = error.code;
+        const errorMessage = error.message;
       });
-    reset();
+    setEmail("");
+    setPassword("");
   };
+
+  // const handleSubmit = (e, email, password) => {
+  //   e.preventDefault();
+  //   axios
+  //     .post(
+  //       "http://127.0.0.1:3000/signup",
+  //       {
+  //         user: {
+  //           email: email,
+  //           password: password,
+  //           password_confirmation: password,
+  //         },
+  //       },
+  //       { withCredentials: true }
+  //     )
+  //     .then((response) => {
+  //       console.log("registration res", response);
+  //       if (response.data.status === "created") {
+  //         history.push("/restaurants");
+  //         props.handleLogin(response.data);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.log("registration error", error);
+  //     });
+  //   setEmail("");
+  //   setPassword("");
+  // };
+
   return (
     <div>
       <h1>ログイン</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={(e) => submitHandler(e)}>
         <div>
           <label>
             Email
-            <input id="email" {...register("email", { required: true })} />
+            <input
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+            />
           </label>
-          <p>{errors.email?.message}</p>
         </div>
         <div>
           <label>
             Password
-            <input id="password" {...register("password")} type="password" />
+            <input
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+            />
           </label>
-          <p>{errors.password?.message}</p>
         </div>
         <div>
-          <button type="submit" disabled={!dirtyFields.email}>
-            ログイン
-          </button>
-        </div>
-        <div>
-          <button type="button" onClick={() => trigger()}>
-            バリデーション
-          </button>
+          <button type="submit">ログイン</button>
         </div>
       </form>
     </div>
