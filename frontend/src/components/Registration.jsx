@@ -7,43 +7,37 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
-const schema = yup.object({
-  email: yup
-    .string()
-    .email("メールアドレスの形式ではありません")
-    .required("入力必須の項目です"),
-  password: yup.string().required("入力必須の項目です"),
-});
+// const clickHandler = () => {
+//   createUserWithEmailAndPassword(auth, email, password)
+//     .then((userCredential) => {
+//       // Signed in
+//       const user = userCredential.user;
+//       // ...
+//     })
+//     .catch((error) => {
+//       const errorCode = error.code;
+//       const errorMessage = error.message;
+//       // ..
+//     });
+// };
 
 const Registration = (props) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isDirty, dirtyFields },
-    trigger,
-    reset,
-  } = useForm({
-    // mode: "onBlur",
-    // criteriaMode: "all",
-    // reValidateMode: "onSubmit",
-    // defaultValues: {
-    //   email: "",
-    //   password: "",
-    // },
-    resolver: yupResolver(schema),
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const history = useHistory();
-  const onSubmit = (data, e) => {
-    console.log(data, e);
+  const handleSubmit = (e, email, password) => {
+    e.preventDefault();
     axios
       .post(
         "http://127.0.0.1:3000/signup",
         {
           user: {
-            email: data.email,
-            password: data.password,
-            password_confirmation: data.password,
+            email: email,
+            password: password,
+            password_confirmation: password,
           },
         },
         { withCredentials: true }
@@ -58,35 +52,38 @@ const Registration = (props) => {
       .catch((error) => {
         console.log("registration error", error);
       });
-    reset();
+    setEmail("");
+    setPassword("");
   };
+
   return (
     <div>
       <h1>新規登録</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={(e) => handleSubmit(e, email, password)}>
         <div>
           <label>
             Email
-            <input id="email" {...register("email", { required: true })} />
+            <input
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+            />
           </label>
-          <p>{errors.email?.message}</p>
         </div>
         <div>
           <label>
             Password
-            <input id="password" {...register("password")} type="password" />
+            <input
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+            />
           </label>
-          <p>{errors.password?.message}</p>
         </div>
         <div>
-          <button type="submit" disabled={!dirtyFields.email}>
-            新規登録
-          </button>
-        </div>
-        <div>
-          <button type="button" onClick={() => trigger()}>
-            バリデーション
-          </button>
+          <button type="submit">新規登録</button>
         </div>
       </form>
     </div>
